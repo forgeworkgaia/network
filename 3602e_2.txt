@@ -1,0 +1,113 @@
+service timestamps debug datetime msec
+service timestamps log datetime msec
+service password-encryption
+!
+hostname fwghomap02
+!
+!
+logging rate-limit console 9
+enable secret 5 $1$6w8l$2WBBVqsTToXXo7y7tl1pL/
+!
+no aaa new-model
+no ip source-route
+no ip cef
+ip domain name fwg.net
+!
+!
+!
+!
+dot11 pause-time 100
+dot11 syslog
+!
+dot11 ssid nowires
+   band-select
+   authentication open
+   authentication key-management wpa version 2
+   guest-mode
+   !wpa-psk ascii 7 YOURKEY
+!
+!
+!
+no ipv6 cef
+!
+!
+username Cisco password 7 032752180500
+username ghuffman privilege 15 password 7 0330530E0000334B4B0817011F1D1B09556B
+!
+!
+bridge irb
+!
+!
+!
+interface Dot11Radio0
+ no ip address
+ !
+ encryption mode ciphers aes-ccm
+ !
+ ssid nowires
+ !
+ antenna gain 0
+ stbc
+ channel least-congested 2412 2437 2462
+ station-role root
+ infrastructure-client
+ bridge-group 1
+ bridge-group 1 subscriber-loop-control
+ bridge-group 1 spanning-disabled
+ bridge-group 1 block-unknown-source
+ no bridge-group 1 source-learning
+ no bridge-group 1 unicast-flooding
+!
+interface Dot11Radio1
+ no ip address
+ !
+ encryption mode ciphers aes-ccm
+ !
+ ssid nowires
+ !
+ antenna gain 0
+ peakdetect
+ dfs band 3 block
+ stbc
+ channel width 40-above
+ channel dfs
+ station-role root
+ bridge-group 1
+ bridge-group 1 subscriber-loop-control
+ bridge-group 1 spanning-disabled
+ bridge-group 1 block-unknown-source
+ no bridge-group 1 source-learning
+ no bridge-group 1 unicast-flooding
+!
+interface GigabitEthernet0
+ no ip address
+ duplex auto
+ speed auto
+ bridge-group 1
+ bridge-group 1 spanning-disabled
+ no bridge-group 1 source-learning
+!
+interface BVI1
+ mac-address fc99.47c8.56b5
+ ip address 192.168.100.9 255.255.255.0
+ ipv6 address dhcp
+ ipv6 address autoconfig
+ ipv6 enable
+!
+ip default-gateway 192.168.100.1
+ip forward-protocol nd
+no ip http server
+no ip http secure-server
+ip ssh version 2
+!
+!
+bridge 1 route ip
+!
+!
+!
+line con 0
+line vty 0 4
+ login local
+ transport input ssh
+!
+end

@@ -1,0 +1,118 @@
+!
+service timestamps debug datetime msec
+service timestamps log datetime msec
+service password-encryption
+!
+ip name-server 8.8.8.8 8.8.4.4
+!
+no ip domain lookup
+ip domain name fwg.net
+ip dhcp-client default-router distance 100
+ip dhcp database flash:dhcp_db
+ip dhcp excluded-address 192.168.100.1 192.168.100.9
+ip dhcp excluded-address 192.168.100.200 192.168.100.254
+!
+ip dhcp pool homenet
+ utilization mark high 80 log
+ network 192.168.100.0 255.255.255.0
+ default-router 192.168.100.1
+ dns-server 8.8.8.8
+!
+!
+!
+!
+!
+!
+!
+!
+!you need to add a username 
+!
+redundancy
+ mode none
+!
+!
+!
+!
+!
+!
+!
+!
+interface GigabitEthernet0/0/0
+ no ip address
+ negotiation auto
+!
+interface GigabitEthernet0/0/0.100
+ encapsulation dot1Q 100
+ ip address 192.168.100.1 255.255.255.0
+ no ip redirects
+ no ip proxy-arp
+ ip nat inside
+!
+interface GigabitEthernet0/0/1
+ no ip address
+ negotiation auto
+!
+interface GigabitEthernet0/0/2
+ no ip address
+ negotiation auto
+!
+interface GigabitEthernet0/0/2.10
+ encapsulation dot1Q 10
+ ip address 192.168.2.5 255.255.255.0
+ no ip redirects
+ no ip proxy-arp
+ ip nat outside
+!
+interface GigabitEthernet0/0/3
+ no ip address
+ negotiation auto
+!
+interface GigabitEthernet0/0/3.20
+ encapsulation dot1Q 20
+ ip address dhcp
+ no ip redirects
+ no ip proxy-arp
+ ip nat outside
+!
+interface GigabitEthernet0
+ vrf forwarding Mgmt-intf
+ no ip address
+ negotiation auto
+!
+ip nat inside source route-map LTE interface GigabitEthernet0/0/3.10 overload
+ip nat inside source route-map STARLINK interface GigabitEthernet0/0/3.20 overload
+ip forward-protocol nd
+!
+no ip http server
+no ip http secure-server
+ip ssh version 2
+!
+access-list 1 permit 192.168.100.0 0.0.0.255
+!
+route-map STARLINK permit 10
+ match ip address 1
+ match interface GigabitEthernet0/0/3.20
+!
+route-map LTE permit 10
+ match ip address 1
+ match interface GigabitEthernet0/0/2.10
+!
+!
+!
+control-plane
+!
+!
+line con 0
+ stopbits 1
+line aux 0
+ stopbits 1
+line vty 0 4
+ login local
+ transport input ssh
+!
+ntp server 132.163.97.1
+ntp server 128.138.140.44
+ntp server 132.163.97.5
+ntp server 132.163.96.5
+!
+end
